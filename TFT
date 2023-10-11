@@ -67,8 +67,8 @@ void TFT_SetCursorPosition(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 
 	
 	
-void TFT_Init()
-{
+	void TFT_Init()
+	{
   TFT_CS_RESET();
   TFT_RST_RESET();
   HAL_Delay(10);
@@ -104,16 +104,24 @@ void TFT_Init()
   TFT_SendData(0x23);
   TFT_SendCommand(Power_Control_2);
   TFT_SendData(0x10);
-  TFT_SendCommand(Column_Address_Set);
+  TFT_SendCommand(VCOM_Control_1);
+  TFT_SendData(0x3E);
+  TFT_SendData(0x28);
+  TFT_SendCommand(VCOM_Control_2);
+  TFT_SendData(0x86);
+  TFT_SendCommand(Memory_Access_Control);
+  TFT_SendData(0x48);
+  TFT_SendCommand(Pixel_Format_Set);
+  TFT_SendData(0x55);
+  TFT_SendCommand(Frame_Rate_Control);
   TFT_SendData(0x00);
+  TFT_SendData(0x18);
+  TFT_SendCommand(Display_Function_Control);
+  TFT_SendData(0x08);
+  TFT_SendData(0x82);
+  TFT_SendData(0x27);
+  TFT_SendCommand(Enable_3G);
   TFT_SendData(0x00);
-  TFT_SendData(0x00);
-  TFT_SendData(0xEF);
-  TFT_SendCommand(Page_Address_Set);
-  TFT_SendData(0x00);
-  TFT_SendData(0x00);
-  TFT_SendData(0x01);
-  TFT_SendData(0x3F);
   TFT_SendCommand(Gamma_Set);
   TFT_SendData(0x01);
   TFT_SendCommand(Positive_Gamma_Correction);
@@ -154,9 +162,9 @@ void TFT_Init()
   TFT_SendCommand(Display_ON);
   HAL_Delay(100);
 
-TFT_SendCommand(0x36); //Vertikal
-TFT_SendData(72);
-}
+  TFT_SendCommand(0x36); //Vertikal
+  TFT_SendData(0x48);
+ }
 
 
 
