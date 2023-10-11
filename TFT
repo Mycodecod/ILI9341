@@ -24,11 +24,11 @@
 #define Memory_Write 0x2C
 
 
-#define TFT_DC_SET()        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
+#define TFT_DC_SET()      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
 #define TFT_DC_RESET()    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
-#define TFT_RST_SET()      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);
-#define TFT_RST_RESET()  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);
-#define TFT_CS_SET()        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+#define TFT_RST_SET()     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);
+#define TFT_RST_RESET()   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);
+#define TFT_CS_SET()      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
 #define TFT_CS_RESET()    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
 
 
@@ -37,7 +37,7 @@ void TFT_SendCommand(uint8_t command)
 {
   TFT_DC_RESET();
   TFT_CS_RESET();
-  HAL_SPI_Transmit(&hspi1, &command,1,1000);
+  HAL_SPI_Transmit(&hspi2, &command,1,1000);
   TFT_CS_SET();
 }
 
@@ -45,7 +45,7 @@ void TFT_SendData(uint8_t data)
 {
   TFT_DC_SET();
   TFT_CS_RESET();
-  HAL_SPI_Transmit(&hspi1, &data,1,1000);
+  HAL_SPI_Transmit(&hspi2, &data,1,1000);
   TFT_CS_SET();
 }
 
@@ -65,16 +65,15 @@ void TFT_SetCursorPosition(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
         TFT_SendData(y2 & 0xFF);
 }
 
-	
-	
-	void TFT_Init()
+
+void TFT_Init()
 	{
-  TFT_CS_RESET();
+  TFT_CS_SET();
   TFT_RST_RESET();
   HAL_Delay(10);
   TFT_RST_SET();
   TFT_SendCommand(Software_Reset);
-  HAL_Delay(500);
+  HAL_Delay(1000);
   
   TFT_SendCommand(Power_Control_A);
   TFT_SendData(0x39);
@@ -86,6 +85,7 @@ void TFT_SetCursorPosition(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
   TFT_SendData(0x00);
   TFT_SendData(0xC1);
   TFT_SendData(0x30);
+		
   TFT_SendCommand(Driver_Timing_Control_A);
   TFT_SendData(0x85);
   TFT_SendData(0x00);
@@ -104,6 +104,7 @@ void TFT_SetCursorPosition(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
   TFT_SendData(0x23);
   TFT_SendCommand(Power_Control_2);
   TFT_SendData(0x10);
+
   TFT_SendCommand(VCOM_Control_1);
   TFT_SendData(0x3E);
   TFT_SendData(0x28);
@@ -122,6 +123,18 @@ void TFT_SetCursorPosition(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
   TFT_SendData(0x27);
   TFT_SendCommand(Enable_3G);
   TFT_SendData(0x00);
+
+  TFT_SendCommand(Column_Address_Set);
+  TFT_SendData(0x00);
+  TFT_SendData(0x00);
+  TFT_SendData(0x00);
+  TFT_SendData(0xEF);
+  TFT_SendCommand(Page_Address_Set);
+  TFT_SendData(0x00);
+  TFT_SendData(0x00);
+  TFT_SendData(0x01);
+  TFT_SendData(0x3F);
+
   TFT_SendCommand(Gamma_Set);
   TFT_SendData(0x01);
   TFT_SendCommand(Positive_Gamma_Correction);
@@ -160,23 +173,19 @@ void TFT_SetCursorPosition(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
   
   HAL_Delay(100);
   TFT_SendCommand(Display_ON);
-  HAL_Delay(100);
-
-  TFT_SendCommand(0x36); //Vertikal
-  TFT_SendData(0x48);
- }
-
-
+}
 
 
 int main()
 {
-  TFT_Init();
-  TFT_SetCursorPosition(0,0,200,200);
+    TFT_Init();
+    TFT_SetCursorPosition(0,0,239,319);
 
-  
-  for(int i=0; i<(200*200); i++)
-	{
-	TFT_SendData(0xbb);
-	}
+    TFT_SendCommand(Memory_Write); //Memory_Write
+
+  for(int i=0; i<(239*319); i++)
+    {
+    TFT_SendData(0xbb);
+    TFT_SendData(0xbb);
+    }
 }
